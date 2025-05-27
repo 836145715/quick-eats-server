@@ -1,6 +1,7 @@
 package com.zmx.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.response.Result;
 import com.zmx.common.utils.JwtUtils;
 
@@ -56,7 +57,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try (PrintWriter out = response.getWriter()) {
-            Result<Void> result = Result.error(401, message);
+            Result<Void> result = Result.error(ErrorCodeEnum.UNAUTHORIZED, message);
             out.write(objectMapper.writeValueAsString(result));
         }
     }

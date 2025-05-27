@@ -3,6 +3,8 @@ package com.zmx.quickserver.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zmx.common.enums.ErrorCodeEnum;
+import com.zmx.common.exception.BusinessException;
 import com.zmx.common.response.Result;
 import com.zmx.quickpojo.entity.Employee;
 import com.zmx.quickpojo.mapper.EmployeeMapper;
@@ -21,11 +23,10 @@ import org.springframework.util.DigestUtils;
  */
 @Slf4j
 @Service
-
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 
     @Autowired
-    private  JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     /**
      * 员工登录
@@ -45,17 +46,17 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
         // 3. 如果没有查询到则返回登录失败结果
         if (employee == null) {
-            return Result.error("用户名不存在");
+            throw new BusinessException(ErrorCodeEnum.USER_NOT_EXIST);
         }
 
         // 4. 密码比对，如果不一致则返回登录失败结果
         if (!employee.getPassword().equals(password)) {
-            return Result.error("密码错误");
+            throw new BusinessException(ErrorCodeEnum.PASSWORD_ERROR);
         }
 
         // 5. 查看员工状态，如果为已禁用状态，则返回员工已禁用结果
         if (employee.getStatus() == 0) {
-            return Result.error("账号已禁用");
+            throw new BusinessException(ErrorCodeEnum.ACCOUNT_DISABLED);
         }
 
         // 6. 登录成功，生成token

@@ -1,6 +1,7 @@
 package com.zmx.quickserver.controller;
 
 
+import com.zmx.common.annotation.ApiLog;
 import com.zmx.quickpojo.vo.LoginDTO;
 import com.zmx.quickpojo.vo.LoginResponseDTO;
 import com.zmx.common.response.Result;
@@ -35,6 +36,7 @@ public class EmployeeController {
      * @return 登录结果
      */
     @PostMapping("/login")
+    @ApiLog
     @Operation(summary = "员工登录", description = "员工登录接口")
     public Result<LoginResponseDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
         log.info("员工登录：{}", loginDTO.getUsername());
