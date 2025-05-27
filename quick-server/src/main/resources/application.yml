@@ -1,2 +1,51 @@
 server:
   port: 8081
+
+spring:
+  application:
+    name: quick-eats
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.137.56.88:3306/quick_eats?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 836145715
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+
+# MyBatis-Plus配置
+mybatis-plus:
+  configuration:
+    # 开启驼峰命名
+    map-underscore-to-camel-case: true
+    # 打印SQL日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 主键生成策略
+      id-type: ASSIGN_ID
+      # 逻辑删除字段
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  # XML映射文件位置
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+# JWT配置
+jwt:
+  # JWT加解密使用的密钥 这里类中自动生成了密钥
+#  secret: f4e2e52034348f86b67cde581c0f9eb5
+  # token有效时长，单位分钟
+  expire: 120
+  # header名称
+  header: Authorization
+  # token前缀
+  tokenPrefix: Bearer
+
+# 日志配置
+logging:
+  level:
+    com.zmx.quickserver: debug
+    org.springframework: warn
