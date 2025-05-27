@@ -15,7 +15,7 @@ import java.util.Base64;
 @SpringBootApplication
 @EnableTransactionManagement
 @ComponentScan(basePackages = {"com.zmx.common", "com.zmx.quickserver","com.zmx.quickpojo"})
-@MapperScan("com.zmx.quickpojo.mapper")
+@MapperScan("com.zmx.*.mapper")
 @EnableAspectJAutoProxy
 public class QuickServerApplication {
 
