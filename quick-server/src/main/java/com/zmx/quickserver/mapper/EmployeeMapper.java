@@ -1,4 +1,4 @@
-package com.zmx.quickpojo.mapper;
+package com.zmx.quickserver.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
