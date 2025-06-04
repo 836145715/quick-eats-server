@@ -2,20 +2,34 @@ package com.zmx.quickserver.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zmx.common.constants.StatusConstant;
 import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.exception.BusinessException;
+import com.zmx.common.response.PageResult;
 import com.zmx.common.response.Result;
+import com.zmx.common.utils.BaseContext;
+import com.zmx.quickpojo.dto.EmployeeDTO;
+import com.zmx.quickpojo.dto.EmployeePageListReqDTO;
 import com.zmx.quickpojo.entity.Employee;
+import com.zmx.quickpojo.vo.EmployeePageListRspVO;
 import com.zmx.quickserver.mapper.EmployeeMapper;
-import com.zmx.quickpojo.vo.LoginDTO;
-import com.zmx.quickpojo.vo.LoginResponseDTO;
+import com.zmx.quickpojo.dto.LoginReqDTO;
+import com.zmx.quickpojo.vo.LoginRspVO;
 import com.zmx.quickserver.service.EmployeeService;
 import com.zmx.common.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 员工服务实现类
@@ -34,7 +48,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
      * @return 登录结果
      */
     @Override
-    public Result<LoginResponseDTO> login(LoginDTO loginDTO) {
+    public Result<LoginRspVO> login(LoginReqDTO loginDTO) {
         // 1. 将页面提交的密码进行md5加密处理
         String password = DigestUtils.md5DigestAsHex(loginDTO.getPassword().getBytes());
 
@@ -54,7 +68,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         }
 
         // 5. 查看员工状态，如果为已禁用状态，则返回员工已禁用结果
-        if (employee.getStatus() == 0) {
+        if (employee.getStatus() == StatusConstant.DISABLE) {
             throw new BusinessException(ErrorCodeEnum.ACCOUNT_DISABLED);
         }
 
@@ -62,7 +76,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         String token = jwtUtils.generateToken(employee.getId());
 
         // 7. 构建登录响应DTO
-        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+        LoginRspVO loginResponse = LoginRspVO.builder()
                 .id(employee.getId())
                 .name(employee.getName())
                 .username(employee.getUsername())
@@ -70,5 +84,72 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
                 .build();
 
         return Result.success(loginResponse);
+    }
+
+    @Override
+    public Result<Void> add(EmployeeDTO employeeDTO) {
+        // 对象属性拷贝
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        employee.setStatus(StatusConstant.ENABLE);
+
+        // 默认123456
+        String password = "123456";
+        String passwordEn = DigestUtils.md5DigestAsHex(password.getBytes());
+        employee.setPassword(passwordEn);
+
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 获取当前登录用户ID
+        Long currentId = BaseContext.getCurrentId();
+        log.info("当前线程ID：{}，当前登录用户ID：{}", Thread.currentThread().getId(), currentId);
+
+        // 设置创建人和修改人
+        employee.setCreateUser(currentId);
+        employee.setUpdateUser(currentId);
+
+        int bRet = baseMapper.insert(employee);
+        if (bRet > 0) {
+            return Result.success();
+        }
+
+        return Result.error("添加员工失败！");
+    }
+
+    @Override
+    public PageResult pageList(EmployeePageListReqDTO dto) {
+
+        LambdaQueryChainWrapper<Employee> query = lambdaQuery();
+        query.like(StringUtils.isNotBlank(dto.getUsername()), Employee::getUsername, dto.getUsername());
+        query.like(StringUtils.isNotBlank(dto.getName()), Employee::getName, dto.getName());
+        query.like(StringUtils.isNotBlank(dto.getPhone()), Employee::getPhone, dto.getPhone());
+        query.eq(dto.getSex() != null, Employee::getSex, dto.getSex());
+
+        query.orderByDesc(Employee::getCreateTime);
+
+        Page<Employee> page = new Page<>(dto.getCurrent(), dto.getSize());
+        IPage<Employee> pageResult = query.page(page);
+
+        // 转VO
+        List<Employee> records = pageResult.getRecords();
+        List<EmployeePageListRspVO> vos = records.stream().map(item -> EmployeePageListRspVO.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .username(item.getUsername())
+                .phone(item.getPhone())
+                .sex(item.getSex())
+                .build()).toList();
+
+        return PageResult.success(pageResult, vos);
+    }
+
+    @Override
+    public Result deleteById(long id) {
+        int bRet = baseMapper.deleteById(id);
+        if (bRet > 0) {
+            return Result.success();
+        }
+        return Result.error("删除员工失败！");
     }
 }

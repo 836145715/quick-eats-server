@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponseDTO {
+public class LoginRspVO {
 
     /**
      * 用户ID

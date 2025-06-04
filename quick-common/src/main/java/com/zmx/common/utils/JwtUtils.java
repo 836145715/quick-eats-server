@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,8 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-//    @Value("${jwt.secret}")
-//    private String secret;
+    @Value("${jwt.secret}")
+    private String secret;
 
     private static final SecretKey SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
@@ -48,7 +49,12 @@ public class JwtUtils {
         Date expireDate = new Date(nowDate.getTime() + expire * 60 * 1000);
 
         // 使用安全的密钥
+
         Key key = Keys.hmacShaKeyFor(SIGNING_KEY.getEncoded());
+
+        if(StringUtils.isNotBlank(secret)){
+            key = Keys.hmacShaKeyFor(secret.getBytes());
+        }
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
@@ -80,6 +86,9 @@ public class JwtUtils {
         try {
             // 使用安全的密钥
             Key key = Keys.hmacShaKeyFor(SIGNING_KEY.getEncoded());
+            if(StringUtils.isNotBlank(secret)){
+                key = Keys.hmacShaKeyFor(secret.getBytes());
+            }
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()

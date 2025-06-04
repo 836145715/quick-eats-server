@@ -3,6 +3,7 @@ package com.zmx.common.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.response.Result;
+import com.zmx.common.utils.BaseContext;
 import com.zmx.common.utils.JwtUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        log.info("当前线程ID：{}，用户ID：{}", Thread.currentThread().getId(), userId);
+
+        // 将用户ID存入ThreadLocal
+        BaseContext.setCurrentId(userId);
+
         // 将用户ID放入请求属性中，供后续使用
         request.setAttribute("userId", userId);
         return true;
@@ -60,5 +66,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             Result<Void> result = Result.error(ErrorCodeEnum.UNAUTHORIZED, message);
             out.write(objectMapper.writeValueAsString(result));
         }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+            Exception ex) {
+        // 清理ThreadLocal，防止内存泄漏
+        BaseContext.removeCurrentId();
     }
 }

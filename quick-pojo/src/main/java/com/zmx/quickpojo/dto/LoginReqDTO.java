@@ -1,4 +1,4 @@
-package com.zmx.quickpojo.vo;
+package com.zmx.quickpojo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.Data;
  * 登录请求DTO
  */
 @Data
-public class LoginDTO {
+public class LoginReqDTO {
 
     /**
      * 用户名
