@@ -12,8 +12,9 @@ import com.zmx.common.exception.BusinessException;
 import com.zmx.common.response.PageResult;
 import com.zmx.common.response.Result;
 import com.zmx.common.utils.BaseContext;
-import com.zmx.quickpojo.dto.EmployeeDTO;
+import com.zmx.quickpojo.dto.EmployeeAddReqDTO;
 import com.zmx.quickpojo.dto.EmployeePageListReqDTO;
+import com.zmx.quickpojo.dto.EmployeeStatusDTO;
 import com.zmx.quickpojo.entity.Employee;
 import com.zmx.quickpojo.vo.EmployeePageListRspVO;
 import com.zmx.quickserver.mapper.EmployeeMapper;
@@ -87,7 +88,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     }
 
     @Override
-    public Result<Void> add(EmployeeDTO employeeDTO) {
+    public Result<Void> add(EmployeeAddReqDTO employeeDTO) {
         // 对象属性拷贝
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
@@ -139,6 +140,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
                 .username(item.getUsername())
                 .phone(item.getPhone())
                 .sex(item.getSex())
+                .status(item.getStatus())
+                .idNumber(item.getIdNumber())
                 .build()).toList();
 
         return PageResult.success(pageResult, vos);
@@ -151,5 +154,51 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
             return Result.success();
         }
         return Result.error("删除员工失败！");
+    }
+
+    @Override
+    public Result updateStatus(EmployeeStatusDTO statusDTO) {
+        // 1. 根据ID查询员工
+        Employee employee = getById(statusDTO.getId());
+        if (employee == null) {
+            return Result.error("员工不存在");
+        }
+
+        // 2. 更新状态
+        employee.setStatus(statusDTO.getStatus());
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        // 3. 执行更新
+        boolean success = updateById(employee);
+        if (success) {
+            return Result.success();
+        }
+
+        return Result.error("更新员工状态失败");
+    }
+
+    @Override
+    public Result update(EmployeeAddReqDTO employeeDTO) {
+        // 1. 根据ID查询员工
+        Employee employee = getById(employeeDTO.getId());
+        if (employee == null) {
+            return Result.error("员工不存在");
+        }
+
+        // 2. 属性拷贝
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        // 3. 设置更新时间和更新人
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        // 4. 执行更新
+        boolean success = updateById(employee);
+        if (success) {
+            return Result.success();
+        }
+
+        return Result.error("更新员工信息失败");
     }
 }

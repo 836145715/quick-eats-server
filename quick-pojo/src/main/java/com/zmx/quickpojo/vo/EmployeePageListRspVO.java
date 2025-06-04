@@ -16,4 +16,8 @@ public class EmployeePageListRspVO {
     private String phone;
 
     private String sex;
+
+    private Integer status;
+
+    private String idNumber;
 }

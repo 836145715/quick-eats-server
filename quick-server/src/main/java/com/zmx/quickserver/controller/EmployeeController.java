@@ -2,8 +2,9 @@ package com.zmx.quickserver.controller;
 
 import com.zmx.common.annotation.ApiLog;
 import com.zmx.common.response.PageResult;
-import com.zmx.quickpojo.dto.EmployeeDTO;
+import com.zmx.quickpojo.dto.EmployeeAddReqDTO;
 import com.zmx.quickpojo.dto.EmployeePageListReqDTO;
+import com.zmx.quickpojo.dto.EmployeeStatusDTO;
 import com.zmx.quickpojo.dto.LoginReqDTO;
 import com.zmx.quickpojo.vo.LoginRspVO;
 import com.zmx.common.response.Result;
@@ -51,7 +52,7 @@ public class EmployeeController {
     @PostMapping("/add")
     @ApiLog
     @Operation(summary = "新增员工", description = "新增员工接口")
-    public Result add(@RequestBody @Valid EmployeeDTO employeeDTO) {
+    public Result add(@RequestBody @Valid EmployeeAddReqDTO employeeDTO) {
         return employeeService.add(employeeDTO);
     }
 
@@ -67,5 +68,19 @@ public class EmployeeController {
     @Operation(summary = "删除员工", description = "删除员工接口")
     public Result delete(@PathVariable long id) {
         return employeeService.deleteById(id);
+    }
+
+    @PostMapping("/status")
+    @ApiLog
+    @Operation(summary = "更新员工状态", description = "更新员工状态接口")
+    public Result updateStatus(@RequestBody @Valid EmployeeStatusDTO statusDTO) {
+        return employeeService.updateStatus(statusDTO);
+    }
+
+    @PostMapping("/update")
+    @ApiLog
+    @Operation(summary = "更新员工信息", description = "更新员工信息接口")
+    public Result update(@RequestBody @Valid EmployeeAddReqDTO employeeDTO) {
+        return employeeService.update(employeeDTO);
     }
 }
