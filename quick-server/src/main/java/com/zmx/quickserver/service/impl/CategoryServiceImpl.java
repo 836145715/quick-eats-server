@@ -1,5 +1,6 @@
 package com.zmx.quickserver.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -124,5 +125,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         }
 
         return Result.error("更新分类信息失败");
+    }
+
+    @Override
+    public Result<List<Category>> listByType(Integer type) {
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(type != null, Category::getType, type);
+        queryWrapper.orderByAsc(Category::getSort);
+
+        List<Category> categories = list(queryWrapper);
+        return Result.success(categories);
     }
 }

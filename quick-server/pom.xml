@@ -99,6 +99,11 @@
             <version>${hutool.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+
     </dependencies>
 
 

@@ -6,6 +6,7 @@ import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.CategoryAddReqDTO;
 import com.zmx.quickpojo.dto.CategoryPageListReqDTO;
 import com.zmx.quickpojo.dto.CategoryStatusDTO;
+import com.zmx.quickpojo.entity.Category;
 import com.zmx.quickserver.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 分类控制器
@@ -79,5 +82,16 @@ public class CategoryController {
     public Result update(@RequestBody @Valid CategoryAddReqDTO categoryDTO) {
         log.info("更新分类信息：{}", categoryDTO);
         return categoryService.update(categoryDTO);
+    }
+
+    /**
+     * 根据分类类型列出分类
+     */
+    @GetMapping("/list")
+    @ApiLog
+    @Operation(summary = "根据分类类型列出分类", description = "根据分类类型列出分类接口")
+    public Result<List<Category>> list(@RequestParam(required = false) Integer type) {
+        log.info("根据分类类型列出分类：type={}", type);
+        return categoryService.listByType(type);
     }
 }

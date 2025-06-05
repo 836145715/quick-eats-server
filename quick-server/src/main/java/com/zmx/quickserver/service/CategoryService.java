@@ -8,6 +8,8 @@ import com.zmx.quickpojo.dto.CategoryPageListReqDTO;
 import com.zmx.quickpojo.dto.CategoryStatusDTO;
 import com.zmx.quickpojo.entity.Category;
 
+import java.util.List;
+
 /**
  * 分类Service接口
  */
@@ -52,4 +54,12 @@ public interface CategoryService extends IService<Category> {
      * @return 操作结果
      */
     Result update(CategoryAddReqDTO categoryDTO);
+
+    /**
+     * 根据分类类型列出分类
+     *
+     * @param type 分类类型
+     * @return 分类列表
+     */
+    Result<List<Category>> listByType(Integer type);
 }
