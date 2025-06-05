@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -99,17 +98,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         String passwordEn = DigestUtils.md5DigestAsHex(password.getBytes());
         employee.setPassword(passwordEn);
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
-        // 获取当前登录用户ID
-        Long currentId = BaseContext.getCurrentId();
-        log.info("当前线程ID：{}，当前登录用户ID：{}", Thread.currentThread().getId(), currentId);
-
-        // 设置创建人和修改人
-        employee.setCreateUser(currentId);
-        employee.setUpdateUser(currentId);
-
+        // 保存员工（创建时间、更新时间、创建人、更新人会由MyBatisPlus自动填充）
         int bRet = baseMapper.insert(employee);
         if (bRet > 0) {
             return Result.success();
@@ -164,10 +153,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
             return Result.error("员工不存在");
         }
 
-        // 2. 更新状态
+        // 2. 更新状态（更新时间和更新人会由MyBatisPlus自动填充）
         employee.setStatus(statusDTO.getStatus());
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         // 3. 执行更新
         boolean success = updateById(employee);
@@ -186,14 +173,10 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
             return Result.error("员工不存在");
         }
 
-        // 2. 属性拷贝
+        // 2. 属性拷贝（更新时间和更新人会由MyBatisPlus自动填充）
         BeanUtils.copyProperties(employeeDTO, employee);
 
-        // 3. 设置更新时间和更新人
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
-
-        // 4. 执行更新
+        // 3. 执行更新
         boolean success = updateById(employee);
         if (success) {
             return Result.success();

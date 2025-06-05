@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -39,19 +38,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         // 设置状态为启用
         category.setStatus(StatusConstant.ENABLE);
 
-        // 设置创建时间和更新时间
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-
-        // 获取当前登录用户ID
-        Long currentId = BaseContext.getCurrentId();
-        log.info("当前线程ID：{}，当前登录用户ID：{}", Thread.currentThread().getId(), currentId);
-
-        // 设置创建人和修改人
-        category.setCreateUser(currentId);
-        category.setUpdateUser(currentId);
-
-        // 保存分类
+        // 保存分类（创建时间、更新时间、创建人、更新人会由MyBatisPlus自动填充）
         boolean success = save(category);
         if (success) {
             return Result.success();
@@ -107,10 +94,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             return Result.error("分类不存在");
         }
 
-        // 更新状态
+        // 更新状态（更新时间和更新人会由MyBatisPlus自动填充）
         category.setStatus(statusDTO.getStatus());
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
 
         // 执行更新
         boolean success = updateById(category);
@@ -129,12 +114,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             return Result.error("分类不存在");
         }
 
-        // 属性拷贝
+        // 属性拷贝（更新时间和更新人会由MyBatisPlus自动填充）
         BeanUtils.copyProperties(categoryDTO, category);
-
-        // 设置更新时间和更新人
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
 
         // 执行更新
         boolean success = updateById(category);

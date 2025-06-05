@@ -30,5 +30,6 @@ public class ShoppingCart {
 
     private BigDecimal amount;
 
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 }
