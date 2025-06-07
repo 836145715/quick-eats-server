@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,29 @@ public class SwaggerConfig {
 
     @Value("${jwt.header}")
     private String tokenHeader;
+
+
+    /**
+     * 用户相关接口分组
+     */
+    @Bean
+    public GroupedOpenApi userApi() {
+        return GroupedOpenApi.builder()
+                .group("后台管理接口")
+                .packagesToScan("com.zmx.quickserver.controller.admin")
+                .build();
+    }
+
+    /**
+     * 订单相关接口分组
+     */
+    @Bean
+    public GroupedOpenApi orderApi() {
+        return GroupedOpenApi.builder()
+                .group("用户接口")
+                .packagesToScan("com.zmx.quickserver.controller.user")
+                .build();
+    }
 
     @Bean
     public OpenAPI customOpenAPI() {

@@ -1,4 +1,4 @@
-package com.zmx.quickserver.controller;
+package com.zmx.quickserver.controller.admin;
 
 import com.zmx.common.annotation.ApiLog;
 import com.zmx.common.response.PageResult;

@@ -1,4 +1,4 @@
-package com.zmx.quickserver.controller;
+package com.zmx.quickserver.controller.admin;
 
 import com.zmx.common.response.Result;
 import com.zmx.quickserver.service.MinioService;
