@@ -1,12 +1,14 @@
 package com.zmx.common.utils;
 
+import com.zmx.common.properties.BaseJwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -19,23 +21,18 @@ import java.util.Map;
  * JWT工具类
  */
 @Data
-@Component
 public class JwtUtils {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private BaseJwtProperties jwtProperties;
+
+    public static JwtUtils configure(BaseJwtProperties jwtProperties){
+        JwtUtils jwtUtils = new JwtUtils();
+        jwtUtils.setJwtProperties(jwtProperties);
+        return jwtUtils;
+    }
+
 
     private static final SecretKey SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-
-    @Value("${jwt.expire}")
-    private long expire;
-
-    @Value("${jwt.header}")
-    private String header;
-
-    @Value("${jwt.tokenPrefix}")
-    private String tokenPrefix;
 
     /**
      * 生成token
@@ -44,6 +41,10 @@ public class JwtUtils {
      * @return token字符串
      */
     public String generateToken(Long userId) {
+        var secret = jwtProperties.getSecret();
+        var tokenPrefix = jwtProperties.getTokenPrefix();
+        var expire = jwtProperties.getExpire();
+
         Date nowDate = new Date();
         // 过期时间
         Date expireDate = new Date(nowDate.getTime() + expire * 60 * 1000);
@@ -51,6 +52,8 @@ public class JwtUtils {
         // 使用安全的密钥
 
         Key key = Keys.hmacShaKeyFor(SIGNING_KEY.getEncoded());
+
+
 
         if(StringUtils.isNotBlank(secret)){
             key = Keys.hmacShaKeyFor(secret.getBytes());
@@ -77,6 +80,9 @@ public class JwtUtils {
         if (token == null || token.isEmpty()) {
             return null;
         }
+        var secret = jwtProperties.getSecret();
+        var tokenPrefix = jwtProperties.getTokenPrefix();
+        var expire = jwtProperties.getExpire();
 
         // 如果token带有前缀，去除前缀
         if (token.startsWith(tokenPrefix)) {

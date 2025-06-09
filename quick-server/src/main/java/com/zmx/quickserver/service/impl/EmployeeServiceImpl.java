@@ -9,9 +9,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zmx.common.constants.StatusConstant;
 import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.exception.BusinessException;
+import com.zmx.common.properties.JwtAdminProperties;
 import com.zmx.common.response.PageResult;
 import com.zmx.common.response.Result;
-import com.zmx.common.utils.BaseContext;
 import com.zmx.quickpojo.dto.EmployeeAddReqDTO;
 import com.zmx.quickpojo.dto.EmployeePageListReqDTO;
 import com.zmx.quickpojo.dto.EmployeeStatusDTO;
@@ -39,7 +39,8 @@ import java.util.List;
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtAdminProperties jwtAdminProperties;
+
 
     /**
      * 员工登录
@@ -73,7 +74,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         }
 
         // 6. 登录成功，生成token
-        String token = jwtUtils.generateToken(employee.getId());
+        String token = JwtUtils.configure(jwtAdminProperties).generateToken(employee.getId());
 
         // 7. 构建登录响应DTO
         LoginRspVO loginResponse = LoginRspVO.builder()

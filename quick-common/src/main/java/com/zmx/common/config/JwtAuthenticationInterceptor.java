@@ -2,6 +2,7 @@ package com.zmx.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zmx.common.enums.ErrorCodeEnum;
+import com.zmx.common.properties.JwtAdminProperties;
 import com.zmx.common.response.Result;
 import com.zmx.common.utils.BaseContext;
 import com.zmx.common.utils.JwtUtils;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -24,14 +26,16 @@ import java.io.PrintWriter;
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
-    private final JwtUtils jwtUtils;
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private  ObjectMapper objectMapper;
+    @Autowired
+    private  JwtAdminProperties jwtProperties;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         // 获取请求头中的token
-        String token = request.getHeader(jwtUtils.getHeader());
+        String token = request.getHeader(jwtProperties.getHeader());
 
         // 如果没有token，返回未认证错误
         if (token == null || token.isEmpty()) {
@@ -40,7 +44,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         }
 
         // 验证token
-        Long userId = jwtUtils.getUserIdFromToken(token);
+        Long userId = JwtUtils.configure(jwtProperties).getUserIdFromToken(token);
         if (userId == null) {
             responseError(response, "登录已过期，请重新登录");
             return false;

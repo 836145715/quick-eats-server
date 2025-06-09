@@ -46,14 +46,25 @@ mybatis-plus:
 
 # JWT配置
 jwt:
-  # JWT加解密使用的密钥 这里类中自动生成了密钥
-  secret: f4e2e52034348f86b67cde581c0f9eb5
-  # token有效时长，单位分钟
-  expire: 1440
-  # header名称
-  header: Authorization
-  # token前缀
-  tokenPrefix: Bearer
+  admin:
+    # JWT加解密使用的密钥 这里类中自动生成了密钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    # token有效时长，单位分钟
+    expire: 1440
+    # header名称
+    header: Authorization
+    # token前缀
+    tokenPrefix: Bearer
+
+  user:
+    # JWT加解密使用的密钥 这里类中自动生成了密钥
+    secret: f4e2e52034348f86b67cde581c0f9ec6
+    # token有效时长，单位分钟
+    expire: 1440
+    # header名称
+    header: Authorization
+    # token前缀
+    tokenPrefix: Bearer
 
 # 日志配置
 logging:
@@ -67,3 +78,8 @@ minio:
   secret-key: zxc147258 #  密码
   secure: false #如果是true，则用的是https而不是http,默认值是true
   bucket-name: "quick-eats" # 桶的名字 相当于文件夹
+
+
+wechat:
+  appid: wx57a7fc716760909e
+  secret: 6ac060c1a86cdd167b5ce931a3057df0

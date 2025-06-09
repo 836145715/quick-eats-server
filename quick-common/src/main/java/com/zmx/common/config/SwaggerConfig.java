@@ -1,5 +1,6 @@
 package com.zmx.common.config;
 
+import com.zmx.common.properties.JwtAdminProperties;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +19,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class SwaggerConfig {
-
-    @Value("${jwt.header}")
-    private String tokenHeader;
-
 
     /**
      * 用户相关接口分组
@@ -55,16 +53,6 @@ public class SwaggerConfig {
                                 .name("Quick Eats Team")
                                 .email("contact@quick-eats.com")
                                 .url("https://www.quick-eats.com"))
-                        .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")))
-                // 添加JWT认证配置
-                .addSecurityItem(new SecurityRequirement().addList(tokenHeader))
-                .components(new Components()
-                        .addSecuritySchemes(tokenHeader, new SecurityScheme()
-                                .name(tokenHeader)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                                .in(SecurityScheme.In.HEADER)
-                                .description("请输入JWT令牌")));
+                        .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
     }
 }
