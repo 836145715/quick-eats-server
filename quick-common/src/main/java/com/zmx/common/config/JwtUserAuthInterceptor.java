@@ -3,6 +3,7 @@ package com.zmx.common.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.properties.JwtAdminProperties;
+import com.zmx.common.properties.JwtUserProperties;
 import com.zmx.common.response.Result;
 import com.zmx.common.utils.BaseContext;
 import com.zmx.common.utils.JwtUtils;
@@ -28,7 +29,7 @@ public class JwtUserAuthInterceptor implements HandlerInterceptor {
     @Autowired
     private  ObjectMapper objectMapper;
     @Autowired
-    private  JwtAdminProperties jwtProperties;
+    private JwtUserProperties jwtProperties;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

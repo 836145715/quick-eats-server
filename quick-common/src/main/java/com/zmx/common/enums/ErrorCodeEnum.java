@@ -18,6 +18,8 @@ public enum ErrorCodeEnum {
     USER_NOT_EXIST(11001, "用户名不存在"),
     PASSWORD_ERROR(11002, "密码错误"),
     ACCOUNT_DISABLED(11003, "账号已禁用"),
+    WECHAT_LOGIN_FAILED(11004, "微信登录失败"),
+    USER_CREATE_FAILED(11005, "用户创建失败"),
 
     // 其他业务错误码可以在此处添加
     ;
