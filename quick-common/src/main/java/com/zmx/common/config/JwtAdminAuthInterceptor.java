@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationInterceptor implements HandlerInterceptor {
+public class JwtAdminAuthInterceptor implements HandlerInterceptor {
 
     @Autowired
     private  ObjectMapper objectMapper;

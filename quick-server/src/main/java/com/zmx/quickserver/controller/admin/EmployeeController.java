@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("/admin/employee")
 @Tag(name = "员工管理", description = "员工相关接口")
 public class EmployeeController {
 

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/setmeal")
+@RequestMapping("/admin/setmeal")
 @Tag(name = "套餐管理", description = "套餐相关接口")
 public class SetmealController {
 

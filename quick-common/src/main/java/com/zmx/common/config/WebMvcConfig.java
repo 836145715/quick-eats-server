@@ -16,16 +16,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private final JwtAuthenticationInterceptor jwtAuthenticationInterceptor;
+    private final JwtAdminAuthInterceptor jwtAdminAuthInterceptor;
+    private final JwtUserAuthInterceptor jwtUserAuthInterceptor;
 
     /**
      * 添加拦截器
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册JWT认证拦截器，拦截所有请求，但排除登录接口
-        registry.addInterceptor(jwtAuthenticationInterceptor)
-                .addPathPatterns("/**")
+        // 后台管理请求拦截器
+        registry.addInterceptor(jwtAdminAuthInterceptor)
+                .addPathPatterns("/admin/**")
                 .excludePathPatterns(
                         "/employee/login",
                         "/doc.html",
@@ -34,6 +35,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/favicon.ico");
+        // 用户端请求拦截器
+        registry.addInterceptor(jwtUserAuthInterceptor)
+                .addPathPatterns("/user/**")
+                .excludePathPatterns(
+                        "/user/login",
+                        "/user/register"
+                );
     }
 
     /**
