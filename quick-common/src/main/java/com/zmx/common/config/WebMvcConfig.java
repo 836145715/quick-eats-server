@@ -28,20 +28,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtAdminAuthInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns(
-                        "/employee/login",
+                        "/admin/employee/login",
                         "/doc.html",
                         "/webjars/**",
                         "/swagger-resources/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
-                        "/favicon.ico");
-        // 用户端请求拦截器
-        registry.addInterceptor(jwtUserAuthInterceptor)
-                .addPathPatterns("/user/**")
-                .excludePathPatterns(
-                        "/user/login",
-                        "/user/register"
+                        "/favicon.ico",
+                        "/user/**"
                 );
+        // 用户端请求拦截器
+//        registry.addInterceptor(jwtUserAuthInterceptor)
+//                .addPathPatterns("/user/**")
+//                .excludePathPatterns(
+//                        "/user/login",
+//                        "/user/register"
+//                );
     }
 
     /**

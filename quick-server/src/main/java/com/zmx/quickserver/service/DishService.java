@@ -7,6 +7,7 @@ import com.zmx.quickpojo.dto.DishAddReqDTO;
 import com.zmx.quickpojo.dto.DishPageListReqDTO;
 import com.zmx.quickpojo.dto.DishStatusDTO;
 import com.zmx.quickpojo.entity.Dish;
+import com.zmx.quickpojo.vo.DishMobileRspVO;
 
 import java.util.List;
 
@@ -56,10 +57,17 @@ public interface DishService extends IService<Dish> {
     Result update(DishAddReqDTO dishDTO);
 
     /**
-     * 根据分类ID查询菜品列表
+     * 根据分类ID查询菜品
      *
      * @param categoryId 分类ID
-     * @return 菜品列表
+     * @return 菜品
      */
     Result<List<Dish>> listByCategoryId(Long categoryId);
+
+    /**
+     * 获取移动端菜品和套餐列表
+     *
+     * @return 菜品和套餐列表
+     */
+    Result<List<DishMobileRspVO>> listMobile();
 }

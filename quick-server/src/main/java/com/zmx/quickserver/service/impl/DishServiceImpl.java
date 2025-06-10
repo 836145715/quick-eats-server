@@ -1,6 +1,7 @@
 package com.zmx.quickserver.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,11 +16,16 @@ import com.zmx.quickpojo.dto.DishStatusDTO;
 import com.zmx.quickpojo.entity.Category;
 import com.zmx.quickpojo.entity.Dish;
 import com.zmx.quickpojo.entity.DishFlavor;
+import com.zmx.quickpojo.entity.Setmeal;
+import com.zmx.quickpojo.vo.DishAndSetmealVO;
+import com.zmx.quickpojo.vo.DishMobileRspVO;
 import com.zmx.quickpojo.vo.DishPageListRspVO;
 import com.zmx.quickserver.mapper.DishFlavorMapper;
 import com.zmx.quickserver.mapper.DishMapper;
 import com.zmx.quickserver.service.CategoryService;
 import com.zmx.quickserver.service.DishService;
+import com.zmx.quickserver.service.SetmealService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +50,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private SetmealService setmealService;
 
     /**
      * 新增菜品
@@ -117,7 +127,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
             List<DishFlavorDTO> dishFlavors = flavors.stream()
                     .filter(flavor -> flavor.getDishId().equals(dish.getId()))
-                    .map(item-> DishFlavorDTO.builder().name(item.getName()).value(item.getValue()).build())
+                    .map(item -> DishFlavorDTO.builder().name(item.getName()).value(item.getValue()).build())
                     .toList();
 
             DishPageListRspVO vo = DishPageListRspVO.builder()
@@ -254,5 +264,72 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
         List<Dish> dishes = list(queryWrapper);
         return Result.success(dishes);
+    }
+
+    @Override
+    public Result<List<DishMobileRspVO>> listMobile() {
+        //查询所有启用的分类
+        LambdaQueryWrapper<Category> categoryQuery = new LambdaQueryWrapper<>();
+        categoryQuery.eq(Category::getStatus, StatusConstant.ENABLE);
+        categoryQuery.orderByAsc(Category::getSort);
+        List<Category> categories = categoryService.list(categoryQuery);
+        Map<Long, DishMobileRspVO> categoryMap = categories.stream()
+                .map(category -> DishMobileRspVO.builder()
+                        .categoryName(category.getName())
+                        .categoryId(category.getId())
+                        .type(category.getType())
+                        .items(new ArrayList<>())
+                        .build())
+                .collect(Collectors.toMap(DishMobileRspVO::getCategoryId, vo -> vo));
+
+        // 2. 查询所有启用的菜品并分配
+        LambdaQueryWrapper<Dish> dishQuery = new LambdaQueryWrapper<>();
+        dishQuery.eq(Dish::getStatus, StatusConstant.ENABLE);
+        List<Dish> dishes = list(dishQuery);
+
+        //遍历菜品 填充到对应的分类下
+        for (Dish dish : dishes) {
+            DishMobileRspVO vo = categoryMap.get(dish.getCategoryId());
+            if (vo != null) {
+                vo.getItems().add(DishAndSetmealVO.builder()
+                        .id(dish.getId())
+                        .name(dish.getName())
+                        .price(dish.getPrice())
+                        .description(dish.getDescription())
+                        .image(dish.getImage())
+                        .type(1) // 1表示菜品
+                        .build());
+            }
+        }
+
+        // 3. 查询所有启用的套餐并分配
+        LambdaQueryWrapper<Setmeal> setmealQuery = new LambdaQueryWrapper<>();
+        setmealQuery.eq(Setmeal::getStatus, StatusConstant.ENABLE);
+        List<Setmeal> setmeals = setmealService.list(setmealQuery);
+        for (Setmeal setmeal : setmeals) {
+            DishMobileRspVO vo = categoryMap.get(setmeal.getCategoryId());
+            if (vo != null) {
+                vo.getItems().add(DishAndSetmealVO.builder()
+                        .id(setmeal.getId())
+                        .name(setmeal.getName())
+                        .price(setmeal.getPrice())
+                        .description(setmeal.getDescription())
+                        .image(setmeal.getImage())
+                        .type(2) // 2表示套餐
+                        .build());
+            }
+        }
+
+
+        // 按分类顺序来排序
+        List<DishMobileRspVO> result = new ArrayList<>();
+        for (Category category : categories) {
+            DishMobileRspVO vo = categoryMap.get(category.getId());
+            if (vo!= null) {
+                result.add(vo);
+            }
+        }
+
+        return Result.success(result);
     }
 }
