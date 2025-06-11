@@ -25,6 +25,11 @@ spring:
       port: 16379
       password: 836145715
       timeout: 3000ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000 # 默认缓存时间30分钟（毫秒）
+      cache-null-values: false # 不缓存空值
 
 # MyBatis-Plus配置
 mybatis-plus:
@@ -78,7 +83,6 @@ minio:
   secret-key: zxc147258 #  密码
   secure: false #如果是true，则用的是https而不是http,默认值是true
   bucket-name: "quick-eats" # 桶的名字 相当于文件夹
-
 
 wechat:
   appid: wx57a7fc716760909e

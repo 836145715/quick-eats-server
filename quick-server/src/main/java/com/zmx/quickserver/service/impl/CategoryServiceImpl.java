@@ -19,6 +19,7 @@ import com.zmx.quickserver.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.List;
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
 
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result<Void> add(CategoryAddReqDTO categoryDTO) {
         // 对象属性拷贝
         Category category = new Category();
@@ -76,6 +78,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result deleteById(long id) {
         // TODO: 后续需要检查该分类是否关联了菜品或套餐，如果已关联则不能删除
 
@@ -88,6 +91,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result updateStatus(CategoryStatusDTO statusDTO) {
         // 根据ID查询分类
         Category category = getById(statusDTO.getId());
@@ -108,6 +112,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result update(CategoryAddReqDTO categoryDTO) {
         // 根据ID查询分类
         Category category = getById(categoryDTO.getId());

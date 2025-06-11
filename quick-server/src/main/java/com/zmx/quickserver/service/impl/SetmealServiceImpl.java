@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +59,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result<Void> add(SetmealAddReqDTO setmealDTO) {
         // 1. 保存套餐基本信息
         Setmeal setmeal = new Setmeal();
@@ -154,6 +156,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result deleteById(long id) {
         // 1. 查询套餐状态，起售中的套餐不能删除
         Setmeal setmeal = getById(id);
@@ -186,6 +189,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
      * @return 操作结果
      */
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result updateStatus(SetmealStatusDTO statusDTO) {
         // 1. 根据ID查询套餐
         Setmeal setmeal = getById(statusDTO.getId());
@@ -213,6 +217,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result update(SetmealAddReqDTO setmealDTO) {
         // 1. 根据ID查询套餐
         Setmeal setmeal = getById(setmealDTO.getId());

@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result<Void> add(DishAddReqDTO dishDTO) {
         // 1. 保存菜品基本信息
         Dish dish = new Dish();
@@ -161,6 +164,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result deleteById(long id) {
         // 1. 删除菜品
         boolean success = removeById(id);
@@ -183,6 +187,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
      * @return 操作结果
      */
     @Override
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result updateStatus(DishStatusDTO statusDTO) {
         // 1. 根据ID查询菜品
         Dish dish = getById(statusDTO.getId());
@@ -210,6 +215,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
      */
     @Override
     @Transactional
+    @CacheEvict(value = "dishMobile", allEntries = true)
     public Result update(DishAddReqDTO dishDTO) {
         // 1. 根据ID查询菜品
         Dish dish = getById(dishDTO.getId());
@@ -267,8 +273,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     }
 
     @Override
+    @Cacheable(value = "dishMobile", key = "'list'", unless = "#result.data == null || #result.data.isEmpty()")
     public Result<List<DishMobileRspVO>> listMobile() {
-        //查询所有启用的分类
+        // 查询所有启用的分类
         LambdaQueryWrapper<Category> categoryQuery = new LambdaQueryWrapper<>();
         categoryQuery.eq(Category::getStatus, StatusConstant.ENABLE);
         categoryQuery.orderByAsc(Category::getSort);
@@ -287,7 +294,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dishQuery.eq(Dish::getStatus, StatusConstant.ENABLE);
         List<Dish> dishes = list(dishQuery);
 
-        //遍历菜品 填充到对应的分类下
+        // 遍历菜品 填充到对应的分类下
         for (Dish dish : dishes) {
             DishMobileRspVO vo = categoryMap.get(dish.getCategoryId());
             if (vo != null) {
@@ -320,12 +327,11 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             }
         }
 
-
         // 按分类顺序来排序
         List<DishMobileRspVO> result = new ArrayList<>();
         for (Category category : categories) {
             DishMobileRspVO vo = categoryMap.get(category.getId());
-            if (vo!= null) {
+            if (vo != null) {
                 result.add(vo);
             }
         }

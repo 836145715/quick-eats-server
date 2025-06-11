@@ -3,18 +3,18 @@ package com.zmx.quickserver;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import java.util.Base64;
 
 /**
  * 应用程序启动类
  */
 @SpringBootApplication
 @EnableTransactionManagement
-@ComponentScan(basePackages = {"com.zmx.common", "com.zmx.quickserver","com.zmx.quickpojo"})
+@EnableCaching  //开启缓存注解
+@ComponentScan(basePackages = { "com.zmx.common", "com.zmx.quickserver", "com.zmx.quickpojo" })
 @MapperScan("com.zmx.*.mapper")
 @EnableAspectJAutoProxy
 public class QuickServerApplication {
