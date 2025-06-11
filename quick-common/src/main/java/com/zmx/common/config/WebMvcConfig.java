@@ -34,16 +34,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/swagger-resources/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
-                        "/favicon.ico",
-                        "/user/**"
+                        "/favicon.ico"
+//                        ,"/user/**"
                 );
         // 用户端请求拦截器
-//        registry.addInterceptor(jwtUserAuthInterceptor)
-//                .addPathPatterns("/user/**")
-//                .excludePathPatterns(
-//                        "/user/login",
-//                        "/user/register"
-//                );
+        registry.addInterceptor(jwtUserAuthInterceptor)
+                .addPathPatterns("/user/**")
+                .excludePathPatterns(
+                        "/user/login",
+                        "/user/register"
+                );
     }
 
     /**

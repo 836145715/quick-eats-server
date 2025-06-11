@@ -50,4 +50,11 @@ public interface ShoppingCartService extends IService<ShoppingCart> {
      * @return 操作结果
      */
     Result<Void> clean();
+
+    /**
+     * 获取购物车商品数量
+     *
+     * @return 购物车商品数量
+     */
+    Result<Long> counts();
 }

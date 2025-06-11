@@ -223,4 +223,15 @@ public class ShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sho
 
         return Result.success();
     }
+
+    @Override
+    public Result<Long> counts() {
+        Long userId = BaseContext.getCurrentId();
+        log.info("获取购物车商品数量，用户ID：{}", userId);
+
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, userId);
+
+        return Result.success(this.count(queryWrapper));
+    }
 }

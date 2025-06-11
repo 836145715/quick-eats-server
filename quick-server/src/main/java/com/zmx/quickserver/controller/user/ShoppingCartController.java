@@ -100,7 +100,7 @@ public class ShoppingCartController {
     @ApiLog
     @Operation(summary = "获取购物车商品数量", description = "获取当前用户的购物车商品数量")
     public Result<Long> count() {
-        return Result.success(shoppingCartService.count());
+        return shoppingCartService.counts();
     }
 
 }
