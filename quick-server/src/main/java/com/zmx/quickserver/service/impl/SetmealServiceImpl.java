@@ -12,9 +12,12 @@ import com.zmx.quickpojo.dto.SetmealAddReqDTO;
 import com.zmx.quickpojo.dto.SetmealPageListReqDTO;
 import com.zmx.quickpojo.dto.SetmealStatusDTO;
 import com.zmx.quickpojo.entity.Category;
+import com.zmx.quickpojo.entity.Dish;
 import com.zmx.quickpojo.entity.Setmeal;
 import com.zmx.quickpojo.entity.SetmealDish;
+import com.zmx.quickpojo.vo.SetmealDishVO;
 import com.zmx.quickpojo.vo.SetmealPageListRspVO;
+import com.zmx.quickserver.mapper.DishMapper;
 import com.zmx.quickserver.mapper.SetmealDishMapper;
 import com.zmx.quickserver.mapper.SetmealMapper;
 import com.zmx.quickserver.service.CategoryService;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +46,9 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishMapper dishMapper;
 
     /**
      * 新增套餐
@@ -260,5 +267,41 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
         List<Setmeal> setmeals = list(queryWrapper);
         return Result.success(setmeals);
+    }
+
+    @Override
+    public Result<List<SetmealDishVO>> getDish(Long id) {
+
+        // 1. 查询套餐
+        Setmeal setmeal = getById(id);
+        if (setmeal == null) {
+            return Result.error("套餐不存在");
+        }
+        // 查询套餐菜品
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId, id);
+        List<SetmealDish> setmealDishes = setmealDishMapper.selectList(queryWrapper);
+
+        // 查询菜品
+        LambdaQueryWrapper<Dish> dishQueryWrapper = new LambdaQueryWrapper<>();
+        dishQueryWrapper.in(Dish::getId,
+                setmealDishes.stream().map(SetmealDish::getDishId).collect(Collectors.toList()));
+
+        // 份数map
+        Map<Long, Integer> copiesMap = setmealDishes.stream()
+                .collect(Collectors.toMap(SetmealDish::getDishId, SetmealDish::getCopies));
+
+        List<Dish> dishes = dishMapper.selectList(dishQueryWrapper);
+        return Result.success(dishes.stream().map(item -> {
+            return SetmealDishVO.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .price(item.getPrice())
+                    .image(item.getImage())
+                    .description(item.getDescription())
+                    .copies(copiesMap.get(item.getId()))
+                    .build();
+
+        }).collect(Collectors.toList()));
     }
 }

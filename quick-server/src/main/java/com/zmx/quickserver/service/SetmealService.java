@@ -6,7 +6,9 @@ import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.SetmealAddReqDTO;
 import com.zmx.quickpojo.dto.SetmealPageListReqDTO;
 import com.zmx.quickpojo.dto.SetmealStatusDTO;
+import com.zmx.quickpojo.entity.Dish;
 import com.zmx.quickpojo.entity.Setmeal;
+import com.zmx.quickpojo.vo.SetmealDishVO;
 
 import java.util.List;
 
@@ -62,4 +64,12 @@ public interface SetmealService extends IService<Setmeal> {
      * @return 套餐列表
      */
     Result<List<Setmeal>> listByCategoryId(Long categoryId);
+
+    /**
+     * 根据套餐ID查询菜品
+     *
+     * @param id 套餐ID
+     * @return 菜品列表
+     */
+    Result<List<SetmealDishVO>> getDish(Long id);
 }
