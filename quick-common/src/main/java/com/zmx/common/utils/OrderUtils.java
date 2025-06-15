@@ -177,4 +177,14 @@ public class OrderUtils {
     public static boolean canComplete(Integer status) {
         return status != null && status.equals(OrderConstant.Status.DELIVERY_IN_PROGRESS);
     }
+
+    /**
+     * 判断订单是否可以再来一单
+     *
+     * @param status 订单状态
+     * @return 是否可以再来一单
+     */
+    public static boolean canRepetition(Integer status) {
+        return status != null && status.equals(OrderConstant.Status.COMPLETED);
+    }
 }

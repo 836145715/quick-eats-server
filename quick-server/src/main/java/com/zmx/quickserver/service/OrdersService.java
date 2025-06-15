@@ -87,4 +87,12 @@ public interface OrdersService extends IService<Orders> {
      * @return 操作结果
      */
     Result<Void> reminderOrder(Long id);
+
+    /**
+     * 再来一单
+     *
+     * @param id 订单ID
+     * @return 操作结果
+     */
+    Result<Void> repetitionOrder(Long id);
 }

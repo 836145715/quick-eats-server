@@ -65,7 +65,7 @@ jwt:
     # JWT加解密使用的密钥 这里类中自动生成了密钥
     secret: f4e2e52034348f86b67cde581c0f9ec6
     # token有效时长，单位分钟
-    expire: 1440
+    expire: 1440000
     # header名称
     header: Authorization
     # token前缀

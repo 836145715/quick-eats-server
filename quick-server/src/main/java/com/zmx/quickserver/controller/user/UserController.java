@@ -3,6 +3,7 @@ package com.zmx.quickserver.controller.user;
 import com.zmx.common.annotation.ApiLog;
 import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.WechatLoginReqDTO;
+import com.zmx.quickpojo.vo.UserInfoVO;
 import com.zmx.quickpojo.vo.WechatLoginRspVO;
 import com.zmx.quickserver.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,4 +51,13 @@ public class UserController {
         log.info("用户退出登录");
         return Result.success();
     }
+
+    @GetMapping("/info")
+    @ApiLog
+    @Operation(summary = "获取用户信息", description = "获取用户信息接口")
+    public Result<UserInfoVO> getUserInfo() {
+        log.info("获取用户信息");
+        return Result.success(userService.getUserInfo());
+    }
+
 }

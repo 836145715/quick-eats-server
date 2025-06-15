@@ -450,4 +450,104 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         return Result.success();
     }
+
+    /**
+     * 再来一单
+     *
+     * @param id 订单ID
+     * @return 操作结果
+     */
+    @Override
+    @Transactional
+    public Result<Void> repetitionOrder(Long id) {
+        log.info("再来一单：{}", id);
+
+        // 1. 获取当前用户ID
+        Long userId = BaseContext.getCurrentId();
+        if (userId == null) {
+            return Result.error("用户未登录");
+        }
+
+        // 2. 查询订单是否存在
+        Orders order = super.getById(id);
+        if (order == null) {
+            return Result.error("订单不存在");
+        }
+
+        // 3. 验证订单是否属于当前用户
+        if (!order.getUserId().equals(userId)) {
+            return Result.error("无权限操作此订单");
+        }
+
+        // 4. 验证订单状态是否允许再来一单
+        if (!OrderUtils.canRepetition(order.getStatus())) {
+            return Result.error("只有已完成的订单才能再来一单");
+        }
+
+        // 5. 查询订单详情
+        LambdaQueryWrapper<OrderDetail> detailQuery = new LambdaQueryWrapper<>();
+        detailQuery.eq(OrderDetail::getOrderId, id);
+        List<OrderDetail> orderDetails = orderDetailService.list(detailQuery);
+
+        if (orderDetails == null || orderDetails.isEmpty()) {
+            return Result.error("订单详情不存在");
+        }
+
+        // 6. 验证商品是否还在售
+        for (OrderDetail detail : orderDetails) {
+            if (detail.getDishId() != null) {
+                // 验证菜品是否存在且在售
+                Dish dish = dishService.getById(detail.getDishId());
+                if (dish == null || dish.getStatus() == 0) {
+                    return Result.error("商品【" + detail.getName() + "】已下架，无法再来一单");
+                }
+            } else if (detail.getSetmealId() != null) {
+                // 验证套餐是否存在且在售
+                Setmeal setmeal = setmealService.getById(detail.getSetmealId());
+                if (setmeal == null || setmeal.getStatus() == 0) {
+                    return Result.error("商品【" + detail.getName() + "】已下架，无法再来一单");
+                }
+            }
+        }
+
+        // 7. 将订单商品重新加入购物车
+        for (OrderDetail detail : orderDetails) {
+            // 检查购物车中是否已存在相同商品
+            LambdaQueryWrapper<ShoppingCart> cartQuery = new LambdaQueryWrapper<>();
+            cartQuery.eq(ShoppingCart::getUserId, userId);
+
+            if (detail.getDishId() != null) {
+                cartQuery.eq(ShoppingCart::getDishId, detail.getDishId());
+                if (detail.getDishFlavor() != null) {
+                    cartQuery.eq(ShoppingCart::getDishFlavor, detail.getDishFlavor());
+                }
+            } else {
+                cartQuery.eq(ShoppingCart::getSetmealId, detail.getSetmealId());
+            }
+
+            ShoppingCart existingCart = shoppingCartService.getOne(cartQuery);
+
+            if (existingCart != null) {
+                // 如果购物车中已存在，更新数量
+                existingCart.setNumber(existingCart.getNumber() + detail.getNumber());
+                shoppingCartService.updateById(existingCart);
+            } else {
+                // 如果购物车中不存在，新增
+                ShoppingCart newCart = new ShoppingCart();
+                newCart.setUserId(userId);
+                newCart.setDishId(detail.getDishId());
+                newCart.setSetmealId(detail.getSetmealId());
+                newCart.setName(detail.getName());
+                newCart.setImage(detail.getImage());
+                newCart.setAmount(detail.getAmount());
+                newCart.setNumber(detail.getNumber());
+                newCart.setDishFlavor(detail.getDishFlavor());
+                newCart.setCreateTime(LocalDateTime.now());
+                shoppingCartService.save(newCart);
+            }
+        }
+
+        log.info("再来一单成功，订单ID：{}，用户ID：{}", id, userId);
+        return Result.success();
+    }
 }

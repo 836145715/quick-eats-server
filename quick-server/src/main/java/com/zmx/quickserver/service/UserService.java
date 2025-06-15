@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.WechatLoginReqDTO;
 import com.zmx.quickpojo.entity.User;
+import com.zmx.quickpojo.vo.UserInfoVO;
 import com.zmx.quickpojo.vo.WechatLoginRspVO;
 
 /**
@@ -18,4 +19,11 @@ public interface UserService extends IService<User> {
      * @return 登录结果
      */
     Result<WechatLoginRspVO> wechatLogin(WechatLoginReqDTO loginDTO);
+
+    /**
+     * 获取用户信息
+     *
+     * @return 用户信息
+     */
+    UserInfoVO getUserInfo();
 }

@@ -6,10 +6,12 @@ import com.zmx.common.enums.ErrorCodeEnum;
 import com.zmx.common.exception.BusinessException;
 import com.zmx.common.properties.JwtUserProperties;
 import com.zmx.common.response.Result;
+import com.zmx.common.utils.BaseContext;
 import com.zmx.common.utils.JwtUtils;
 import com.zmx.quickpojo.dto.WechatApiResponseDTO;
 import com.zmx.quickpojo.dto.WechatLoginReqDTO;
 import com.zmx.quickpojo.entity.User;
+import com.zmx.quickpojo.vo.UserInfoVO;
 import com.zmx.quickpojo.vo.WechatLoginRspVO;
 import com.zmx.quickserver.mapper.UserMapper;
 import com.zmx.quickserver.service.UserService;
@@ -88,5 +90,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         log.info("微信小程序登录成功，用户ID: {}", user.getId());
         return Result.success(response);
+    }
+
+    @Override
+    public UserInfoVO getUserInfo() {
+        Long userId = BaseContext.getCurrentId();
+        if (userId == null) {
+            throw new BusinessException(ErrorCodeEnum.UNAUTHORIZED);
+        }
+
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCodeEnum.USER_NOT_EXIST);
+        }
+
+        UserInfoVO userInfo = new UserInfoVO();
+        userInfo.setName(user.getName());
+        userInfo.setPhone(user.getPhone());
+        userInfo.setAvatar(user.getAvatar());
+
+        return userInfo;
     }
 }

@@ -99,12 +99,7 @@ public class UserOrderController {
     @Operation(summary = "再来一单", description = "根据订单ID再来一单接口")
     public Result<Void> repetition(@PathVariable Long id) {
         log.info("再来一单：{}", id);
-        
-        // TODO: 实现再来一单逻辑
-        // 1. 查询订单详情
-        // 2. 将订单商品重新加入购物车
-        
-        return Result.success();
+        return ordersService.repetitionOrder(id);
     }
 
     /**
