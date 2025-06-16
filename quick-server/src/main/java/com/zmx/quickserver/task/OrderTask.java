@@ -1,6 +1,7 @@
 package com.zmx.quickserver.task;
 
 import com.zmx.common.constants.OrderConstant;
+import com.zmx.quickserver.config.WebSocketServer;
 import com.zmx.quickserver.mapper.OrdersMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,15 @@ public class OrderTask {
             });
         }
     }
+
+//    @Autowired
+//    private WebSocketServer webSocketServer;
+//
+//    @Scheduled(cron = "0/5 * * * * ?")
+//    public void testSendMsg(){
+//        log.debug("服务器发送消息：" + LocalDateTime.now());
+//        webSocketServer.sendAllMessage("服务器消息：" +  LocalDateTime.now());
+//    }
+
 
 }

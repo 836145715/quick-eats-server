@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/ws/{clientId}")
 public class WebSocketServer {
 
-    private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+    private static final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session, @PathParam("clientId") String clientId) {

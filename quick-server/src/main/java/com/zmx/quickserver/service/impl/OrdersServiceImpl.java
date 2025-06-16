@@ -57,7 +57,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Autowired
     private SetmealService setmealService;
 
-
     @Autowired
     private WebSocketServer webSocketServer;
 
@@ -457,7 +456,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         log.info("向商家发送催单通知，订单号：{}", order.getNumber());
         Map<String, Object> map = new HashMap<>();
         map.put("type", 2); // 1: 来单提醒 2. 催单提醒
-        map.put("orderId", order.getId());
+        map.put("orderNumber", order.getNumber());
         // 转为json字符串
         String json = JSONUtil.toJsonStr(map);
         webSocketServer.sendAllMessage(json);
@@ -565,7 +564,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         return Result.success();
     }
 
-
     @Override
     public Result<Void> payOrder(Long id) {
         var order = baseMapper.selectById(id);
@@ -582,7 +580,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         if (res == 1) {
             Map<String, Object> map = new HashMap<>();
             map.put("type", 1); // 1: 来单提醒 2. 催单提醒
-            map.put("orderId", order.getId());
+            map.put("orderNumber", order.getNumber());
             // 转为json字符串
             String json = JSONUtil.toJsonStr(map);
             webSocketServer.sendAllMessage(json);
