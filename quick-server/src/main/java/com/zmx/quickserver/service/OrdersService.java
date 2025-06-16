@@ -95,4 +95,8 @@ public interface OrdersService extends IService<Orders> {
      * @return 操作结果
      */
     Result<Void> repetitionOrder(Long id);
+
+
+    Result<Void> payOrder(Long id);
+
 }

@@ -17,8 +17,11 @@ import com.zmx.quickpojo.entity.*;
 import com.zmx.quickpojo.vo.OrderDetailVO;
 import com.zmx.quickpojo.vo.OrderPageListRspVO;
 import com.zmx.quickpojo.vo.OrderSubmitRspVO;
+import com.zmx.quickserver.config.WebSocketServer;
 import com.zmx.quickserver.mapper.OrdersMapper;
 import com.zmx.quickserver.service.*;
+
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +45,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Autowired
     private ShoppingCartService shoppingCartService;
-
     @Autowired
     private AddressBookService addressBookService;
 
@@ -52,6 +56,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Autowired
     private SetmealService setmealService;
+
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -447,6 +455,12 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         // 这里可以发送催单通知给商家
         // 比如发送WebSocket消息、短信通知等
         log.info("向商家发送催单通知，订单号：{}", order.getNumber());
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 2); // 1: 来单提醒 2. 催单提醒
+        map.put("orderId", order.getId());
+        // 转为json字符串
+        String json = JSONUtil.toJsonStr(map);
+        webSocketServer.sendAllMessage(json);
 
         return Result.success();
     }
@@ -549,5 +563,32 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         log.info("再来一单成功，订单ID：{}，用户ID：{}", id, userId);
         return Result.success();
+    }
+
+
+    @Override
+    public Result<Void> payOrder(Long id) {
+        var order = baseMapper.selectById(id);
+        if (order == null) {
+            return Result.error("订单不存在");
+        }
+
+        if (order.getStatus() != OrderConstant.Status.PENDING_PAYMENT) {
+            return Result.error("订单状态不是待付款");
+        }
+
+        order.setStatus(OrderConstant.Status.TO_BE_CONFIRMED);
+        var res = baseMapper.updateById(order);
+        if (res == 1) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("type", 1); // 1: 来单提醒 2. 催单提醒
+            map.put("orderId", order.getId());
+            // 转为json字符串
+            String json = JSONUtil.toJsonStr(map);
+            webSocketServer.sendAllMessage(json);
+            return Result.success();
+        }
+
+        return Result.error("支付失败");
     }
 }

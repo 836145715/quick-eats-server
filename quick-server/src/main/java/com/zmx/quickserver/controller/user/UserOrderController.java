@@ -115,4 +115,18 @@ public class UserOrderController {
         log.info("用户催单：{}", id);
         return ordersService.reminderOrder(id);
     }
+
+    /**
+     * 模拟支付
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/pay/{id}")
+    @ApiLog
+    @Operation(summary = "支付订单", description = "用户支付订单接口")
+    public Result<Void> pay(@PathVariable Long id) {
+        log.info("用户支付订单：{}", id);
+        return ordersService.payOrder(id);
+    }
 }
