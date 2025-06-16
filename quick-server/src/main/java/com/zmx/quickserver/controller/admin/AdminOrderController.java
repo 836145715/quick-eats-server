@@ -4,12 +4,10 @@ import com.zmx.common.annotation.ApiLog;
 import com.zmx.common.response.PageResult;
 import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.OrderPageListReqDTO;
-import com.zmx.quickpojo.dto.OrderStatusDTO;
 import com.zmx.quickpojo.vo.OrderPageListRspVO;
 import com.zmx.quickserver.service.OrdersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,10 +48,10 @@ public class AdminOrderController {
     @Operation(summary = "各个状态的订单数量统计", description = "统计各个状态的订单数量接口")
     public Result<Object> statistics() {
         log.info("各个状态的订单数量统计");
-        
+
         // TODO: 实现订单状态统计逻辑
         // 统计待接单、已接单、派送中等各个状态的订单数量
-        
+
         return Result.success();
     }
 
@@ -74,43 +72,43 @@ public class AdminOrderController {
     /**
      * 接单
      *
-     * @param statusDTO 状态信息
+     * @param orderId 订单ID
      * @return 操作结果
      */
-    @PutMapping("/confirm")
+    @GetMapping("/confirm/{orderId}")
     @ApiLog
     @Operation(summary = "接单", description = "商家接单接口")
-    public Result<Void> confirm(@RequestBody @Valid OrderStatusDTO statusDTO) {
-        log.info("接单：{}", statusDTO);
-        return ordersService.confirmOrder(statusDTO);
+    public Result<Void> confirm(@PathVariable Long orderId) {
+        log.info("接单：{}", orderId);
+        return ordersService.confirmOrder(orderId);
     }
 
     /**
      * 拒单
      *
-     * @param statusDTO 状态信息
+     * @param orderId 订单ID
      * @return 操作结果
      */
-    @PutMapping("/rejection")
+    @GetMapping("/rejection/{orderId}")
     @ApiLog
     @Operation(summary = "拒单", description = "商家拒单接口")
-    public Result<Void> rejection(@RequestBody @Valid OrderStatusDTO statusDTO) {
-        log.info("拒单：{}", statusDTO);
-        return ordersService.rejectOrder(statusDTO);
+    public Result<Void> rejection(@PathVariable Long orderId) {
+        log.info("拒单：{}", orderId);
+        return ordersService.rejectOrder(orderId);
     }
 
     /**
      * 取消订单
      *
-     * @param statusDTO 状态信息
+     * @param orderId 订单ID
      * @return 操作结果
      */
-    @PutMapping("/cancel")
+    @GetMapping("/cancel/{orderId}")
     @ApiLog
     @Operation(summary = "取消订单", description = "商家取消订单接口")
-    public Result<Void> cancel(@RequestBody @Valid OrderStatusDTO statusDTO) {
-        log.info("取消订单：{}", statusDTO);
-        return ordersService.cancelOrder(statusDTO.getId(), statusDTO.getCancelReason());
+    public Result<Void> cancel(@PathVariable Long orderId) {
+        log.info("取消订单：{}", orderId);
+        return ordersService.cancelOrder(orderId, "商家取消订单");
     }
 
     /**
@@ -119,7 +117,7 @@ public class AdminOrderController {
      * @param id 订单ID
      * @return 操作结果
      */
-    @PutMapping("/delivery/{id}")
+    @GetMapping("/delivery/{id}")
     @ApiLog
     @Operation(summary = "派送订单", description = "商家派送订单接口")
     public Result<Void> delivery(@PathVariable Long id) {
@@ -133,7 +131,7 @@ public class AdminOrderController {
      * @param id 订单ID
      * @return 操作结果
      */
-    @PutMapping("/complete/{id}")
+    @GetMapping("/complete/{id}")
     @ApiLog
     @Operation(summary = "完成订单", description = "商家完成订单接口")
     public Result<Void> complete(@PathVariable Long id) {

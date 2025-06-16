@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zmx.common.response.PageResult;
 import com.zmx.common.response.Result;
 import com.zmx.quickpojo.dto.OrderPageListReqDTO;
-import com.zmx.quickpojo.dto.OrderStatusDTO;
 import com.zmx.quickpojo.dto.OrderSubmitReqDTO;
 import com.zmx.quickpojo.entity.Orders;
 import com.zmx.quickpojo.vo.OrderPageListRspVO;
@@ -51,18 +50,18 @@ public interface OrdersService extends IService<Orders> {
     /**
      * 接单
      *
-     * @param statusDTO 状态信息
+     * @param orderId 订单ID
      * @return 操作结果
      */
-    Result<Void> confirmOrder(OrderStatusDTO statusDTO);
+    Result<Void> confirmOrder(Long orderId);
 
     /**
      * 拒单
      *
-     * @param statusDTO 状态信息
+     * @param orderId 订单ID
      * @return 操作结果
      */
-    Result<Void> rejectOrder(OrderStatusDTO statusDTO);
+    Result<Void> rejectOrder(Long orderId);
 
     /**
      * 派送订单
@@ -95,7 +94,6 @@ public interface OrdersService extends IService<Orders> {
      * @return 操作结果
      */
     Result<Void> repetitionOrder(Long id);
-
 
     Result<Void> payOrder(Long id);
 

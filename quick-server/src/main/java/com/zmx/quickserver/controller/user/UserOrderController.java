@@ -53,10 +53,10 @@ public class UserOrderController {
     @Operation(summary = "历史订单查询", description = "用户查询历史订单接口")
     public PageResult<OrderPageListRspVO> historyOrders(@RequestBody OrderPageListReqDTO dto) {
         log.info("历史订单查询：{}", dto);
-        
+
         // 设置当前用户ID
         dto.setUserId(BaseContext.getCurrentId());
-        
+
         return ordersService.pageList(dto);
     }
 
@@ -80,12 +80,12 @@ public class UserOrderController {
      * @param id 订单ID
      * @return 操作结果
      */
-    @PutMapping("/cancel/{id}")
+    @GetMapping("/cancel/{id}")
     @ApiLog
     @Operation(summary = "取消订单", description = "用户取消订单接口")
     public Result<Void> cancel(@PathVariable Long id) {
         log.info("用户取消订单：{}", id);
-        return ordersService.cancelOrder(id, "用户取消");
+        return ordersService.cancelOrder(id, "用户取消订单");
     }
 
     /**

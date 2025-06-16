@@ -29,8 +29,8 @@ public class OrderStatusDTO implements Serializable {
     /**
      * 订单状态
      */
-    @NotNull(message = "订单状态不能为空")
-    @Schema(description = "订单状态：1待付款，2待接单，3已接单，4派送中，5已完成，6已取消", required = true)
+    // @NotNull(message = "订单状态不能为空")
+    @Schema(description = "订单状态：1待付款，2待接单，3已接单，4派送中，5已完成，6已取消", required = false)
     private Integer status;
 
     /**

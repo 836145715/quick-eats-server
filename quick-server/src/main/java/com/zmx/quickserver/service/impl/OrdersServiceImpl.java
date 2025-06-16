@@ -289,7 +289,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     @Transactional
     public Result<Void> cancelOrder(Long id, String cancelReason) {
-        log.info("取消订单：{}, 原因：{}", id, cancelReason);
+        log.info("取消订单：{}", id);
 
         Orders order = super.getById(id);
         if (order == null) {
@@ -320,10 +320,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      */
     @Override
     @Transactional
-    public Result<Void> confirmOrder(OrderStatusDTO statusDTO) {
-        log.info("接单：{}", statusDTO);
+    public Result<Void> confirmOrder(Long orderId) {
+        log.info("接单：{}", orderId);
 
-        Orders order = super.getById(statusDTO.getId());
+        Orders order = super.getById(orderId);
         if (order == null) {
             return Result.error("订单不存在");
         }
@@ -334,11 +334,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         // 更新订单状态
         Orders updateOrder = new Orders();
-        updateOrder.setId(statusDTO.getId());
+        updateOrder.setId(orderId);
         updateOrder.setStatus(OrderConstant.Status.CONFIRMED);
-
         updateById(updateOrder);
-
         return Result.success();
     }
 
@@ -350,10 +348,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      */
     @Override
     @Transactional
-    public Result<Void> rejectOrder(OrderStatusDTO statusDTO) {
-        log.info("拒单：{}", statusDTO);
+    public Result<Void> rejectOrder(Long orderId) {
+        log.info("拒单：{}", orderId);
 
-        Orders order = super.getById(statusDTO.getId());
+        Orders order = super.getById(orderId);
         if (order == null) {
             return Result.error("订单不存在");
         }
@@ -364,9 +362,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         // 更新订单状态
         Orders updateOrder = new Orders();
-        updateOrder.setId(statusDTO.getId());
+        updateOrder.setId(orderId);
         updateOrder.setStatus(OrderConstant.Status.CANCELLED);
-        updateOrder.setRejectionReason(statusDTO.getRejectionReason());
+        updateOrder.setRejectionReason("商家拒单");
         updateOrder.setCancelTime(LocalDateTime.now());
 
         updateById(updateOrder);
