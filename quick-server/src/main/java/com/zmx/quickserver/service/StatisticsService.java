@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zmx.common.constants.OrderConstant;
 import com.zmx.common.exception.BusinessException;
 import com.zmx.quickpojo.entity.User;
+
 import com.zmx.quickpojo.vo.OrderStatisticsRspVO;
 import com.zmx.quickpojo.vo.SalesTop10RspVO;
 import com.zmx.quickpojo.vo.TurnoverStatisticsRspVO;
@@ -98,7 +99,6 @@ public class StatisticsService {
         return vo;
     }
 
-
     public OrderStatisticsRspVO order(LocalDateTime begin, LocalDateTime end) {
         if (end.isBefore(begin)) {
             throw new BusinessException("结束时间不能早于开始时间");
@@ -133,7 +133,6 @@ public class StatisticsService {
         return vo;
     }
 
-
     public SalesTop10RspVO sales(LocalDateTime begin, LocalDateTime end) {
         if (end.isBefore(begin)) {
             throw new BusinessException("结束时间不能早于开始时间");
@@ -158,8 +157,7 @@ public class StatisticsService {
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
+                        LinkedHashMap::new));
 
         var names = new ArrayList<>(sortedMap.keySet());
         var sales = new ArrayList<>(sortedMap.values());
