@@ -8,8 +8,11 @@ import com.zmx.quickpojo.vo.UserStatisticsRspVO;
 import com.zmx.quickserver.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -52,6 +55,12 @@ public class AdminStatisticsController {
     public Result<SalesTop10RspVO> salesStatistics(@RequestParam("begin")LocalDate begin,
                                                    @RequestParam("end")LocalDate end) {
         return Result.success(statisticsService.sales(begin.atStartOfDay(), end.atStartOfDay()));
+    }
+
+    @GetMapping("export")
+    @Operation(summary = "导出统计数据", description = "导出统计数据")
+    public void exportStatistics(HttpServletResponse response) {
+        statisticsService.export(response);
     }
 
 }
