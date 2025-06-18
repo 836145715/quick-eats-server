@@ -2,10 +2,17 @@ package com.zmx.quickserver.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zmx.common.constants.OrderConstant;
+import com.zmx.quickpojo.entity.Dish;
 import com.zmx.quickpojo.entity.Orders;
+import com.zmx.quickpojo.entity.Setmeal;
 import com.zmx.quickpojo.entity.User;
+import com.zmx.quickpojo.vo.DashboardDishSetMealVO;
+import com.zmx.quickpojo.vo.DashboardOrderCountRspVO;
 import com.zmx.quickpojo.vo.DashboardTodayRspVO;
+import com.zmx.quickpojo.vo.OrderStatusStatisticsRspVO;
+import com.zmx.quickserver.mapper.DishMapper;
 import com.zmx.quickserver.mapper.OrdersMapper;
+import com.zmx.quickserver.mapper.SetmealMapper;
 import com.zmx.quickserver.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +39,12 @@ public class DashboardService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private DishMapper dishMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     /**
      * 获取今日数据统计
@@ -208,5 +221,142 @@ public class DashboardService {
             log.error("获取今日新增用户数量失败", e);
             return 0;
         }
+    }
+
+    /**
+     * 获取今日订单状态统计
+     * 统计今日各个状态的订单数量
+     *
+     * @return 今日订单状态统计结果
+     */
+    public OrderStatusStatisticsRspVO getOrderStatusStatistics() {
+        log.info("获取今日订单状态统计");
+
+        // 获取今日开始和结束时间
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
+
+        try {
+            // 统计今日待接单订单数量
+            Integer toBeConfirmed = getTodayOrderCountByStatus(OrderConstant.Status.TO_BE_CONFIRMED, todayStart, todayEnd);
+
+            // 统计今日待派送订单数量（已接单）
+            Integer confirmed = getTodayOrderCountByStatus(OrderConstant.Status.CONFIRMED, todayStart, todayEnd);
+
+            // 统计今日派送中订单数量
+            Integer deliveryInProgress = getTodayOrderCountByStatus(OrderConstant.Status.DELIVERY_IN_PROGRESS, todayStart, todayEnd);
+
+            // 统计今日已完成订单数量
+            Integer completed = getTodayOrderCountByStatus(OrderConstant.Status.COMPLETED, todayStart, todayEnd);
+
+            // 统计今日已取消订单数量
+            Integer cancelled = getTodayOrderCountByStatus(OrderConstant.Status.CANCELLED, todayStart, todayEnd);
+
+            // 统计今日全部订单数量
+            Integer allOrders = getTodayAllOrderCount(todayStart, todayEnd);
+
+            // 构建返回结果
+            OrderStatusStatisticsRspVO result = OrderStatusStatisticsRspVO.builder()
+                    .toBeConfirmed(toBeConfirmed)
+                    .confirmed(confirmed)
+                    .deliveryInProgress(deliveryInProgress)
+                    .completed(completed)
+                    .cancelled(cancelled)
+                    .allOrders(allOrders)
+                    .build();
+
+            log.info("今日订单状态统计完成：待接单={}，待派送={}，派送中={}，已完成={}，已取消={}，全部={}",
+                    toBeConfirmed, confirmed, deliveryInProgress, completed, cancelled, allOrders);
+
+            return result;
+
+        } catch (Exception e) {
+            log.error("获取今日订单状态统计失败", e);
+            // 返回默认值，避免前端报错
+            return OrderStatusStatisticsRspVO.builder()
+                    .toBeConfirmed(0)
+                    .confirmed(0)
+                    .deliveryInProgress(0)
+                    .completed(0)
+                    .cancelled(0)
+                    .allOrders(0)
+                    .build();
+        }
+    }
+
+    /**
+     * 根据订单状态统计今日订单数量
+     *
+     * @param status 订单状态
+     * @param todayStart 今日开始时间
+     * @param todayEnd 今日结束时间
+     * @return 今日订单数量
+     */
+    private Integer getTodayOrderCountByStatus(Integer status, LocalDateTime todayStart, LocalDateTime todayEnd) {
+        try {
+            LambdaQueryWrapper<Orders> query = new LambdaQueryWrapper<>();
+            query.eq(Orders::getStatus, status)
+                 .ge(Orders::getOrderTime, todayStart)
+                 .le(Orders::getOrderTime, todayEnd);
+
+            return Math.toIntExact(ordersMapper.selectCount(query));
+
+        } catch (Exception e) {
+            log.error("统计今日状态为{}的订单数量失败", status, e);
+            return 0;
+        }
+    }
+
+    /**
+     * 统计今日全部订单数量
+     *
+     * @param todayStart 今日开始时间
+     * @param todayEnd 今日结束时间
+     * @return 今日全部订单数量
+     */
+    private Integer getTodayAllOrderCount(LocalDateTime todayStart, LocalDateTime todayEnd) {
+        try {
+            LambdaQueryWrapper<Orders> query = new LambdaQueryWrapper<>();
+            query.ge(Orders::getOrderTime, todayStart)
+                 .le(Orders::getOrderTime, todayEnd);
+
+            return Math.toIntExact(ordersMapper.selectCount(query));
+
+        } catch (Exception e) {
+            log.error("统计今日全部订单数量失败", e);
+            return 0;
+        }
+    }
+
+    public DashboardDishSetMealVO getDishSetMeal() {
+        DashboardDishSetMealVO result = new DashboardDishSetMealVO();
+        LambdaQueryWrapper<Dish> dishQuery = new LambdaQueryWrapper<>();
+        dishQuery.eq(Dish::getStatus, 1);
+        result.setDishEnableCount(dishMapper.selectCount(dishQuery));
+
+        LambdaQueryWrapper<Dish> dishQuery2 = new LambdaQueryWrapper<>();
+        dishQuery2.eq(Dish::getStatus, 0);
+        result.setDishDisableCount(dishMapper.selectCount(dishQuery2));
+
+        LambdaQueryWrapper<Setmeal> setmealQuery = new LambdaQueryWrapper<>();
+        setmealQuery.eq(Setmeal::getStatus, 1);
+        result.setSetMealEnableCount(setmealMapper.selectCount(setmealQuery));
+
+        LambdaQueryWrapper<Setmeal> setmealQuery2 = new LambdaQueryWrapper<>();
+        setmealQuery2.eq(Setmeal::getStatus, 0);
+        result.setSetMealDisableCount(setmealMapper.selectCount(setmealQuery2));
+        return result;
+    }
+
+    public DashboardOrderCountRspVO getOrderCount() {
+        var result = new DashboardOrderCountRspVO();
+        LambdaQueryWrapper<Orders> query = new LambdaQueryWrapper<>();
+        query.eq(Orders::getStatus, OrderConstant.Status.TO_BE_CONFIRMED);
+        result.setWaitAcceptCount(ordersMapper.selectCount(query));
+
+        query.clear();
+        query.eq(Orders::getStatus, OrderConstant.Status.CONFIRMED);
+                result.setWaitDeliveryCount(ordersMapper.selectCount(query));
+                return result;
     }
 }
